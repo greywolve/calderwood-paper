@@ -14,8 +14,6 @@ Final year project report for a B.Sc Electrical & Computer Engineering at the Un
 
 ##Building
 
-run:
+`make`
 
-```make```
-
-this will produce ```report.pdf```
+this will produce `report.pdf`
