@@ -1,4 +1,4 @@
-# Calderwood: A CQRS / Event Sourcing Framework
+# Calderwood: A CQRS / Event Sourcing Template
 
 ## About
 
