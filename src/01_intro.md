@@ -84,6 +84,48 @@ following criteria:
 
 ## Avoiding the tarpit
 
+- Complexity is the root cause of most problems in software development, because
+  understanding of the software is greatly undermined by complexity.
+
+- Need to differentiate between essential and accidental complexity. Essential
+  complexity is inherent in the problem, whereas accidental complexity is
+  additional complexity created by the programmer, and orthogonal to solving the
+  problem at hand.
+
+- Complexity in software is primarily caused by mutable state, and control. It
+  is difficult to keep track of all possible states that a system can be in.
+  Likewise control is difficult because order is important. If one statement is
+  incorrectly placed before another then the program is typically incorrect too
+
+- Object-orientated programming has been one approach to handling this
+  complexity. However it fails for two primary reasons. OO conflates the notion
+  of intensional identity (an object's identity) and extensional identity (the
+  object's attributes). This increases the number of states which need to be
+  considered. Secondly each object method accessing the object's state needs to
+  enforce integrity constraints, it is also akward to enforce multi-object
+  integrity constraints. OO also uses traditional flow control structures, and
+  thus has to solution to taming complexity associated with control.
+
+- "The bottom line is that all forms of OOP rely on state (contained within
+  objects) and in general all behaviour is affected by this state. As a result
+  of this, OOP suffers directly from the problems associated with state, and as
+  such we believe that it does not provide an adequate foundation for avoiding
+  complexity."
+
+- Functional programming in it's purest form eschews mutable state and side
+  effects, and thus avoids much of the complexity associated with state. Higher
+  level functions such as filter and map, allow a slighly better form of
+  control, though order still matters to a large degree. The biggest weakness of
+  functional programming is it's strength too, since all non-trivial programs
+  require a certain amount of essential state.
+
+- Mosely and Marks recommend two strategies for dealing with complexity. Avoid
+  it, accept only essential complexity, and if you can't avoid it, for reasons
+  of ease of use, or performance, then seperate it out in order to better manage
+  it.
+
+@10_moseleymarks_2006
+
 ## Software evolvability
 
 ## Service-orientated architecture and Microservices
