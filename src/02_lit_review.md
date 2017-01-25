@@ -168,7 +168,9 @@ Martin Fowler describes Event Sourcing as follows: [@16_fowler_2005]
 Event Sourcing is an architectural pattern in which changes to an applications
 state are captured as a time ordered series of event objects. It is then
 possible to reconstitute the application state, to any point in time, simply by
-replaying these events, along with the initial application state. 
+replaying these events, along with the initial application state. Unlike CRUD
+based systems, no data is lost, and Event Sourced applications naturally support
+data science. [@23_calderwood_2015]
 
 The history of Event Sourced applications goes back as far the IBM IMS TM
 transaction manager which was used as part of an inventory system to manage the
@@ -218,17 +220,40 @@ use it in industry. Some of these are the following:
 
 ## CQRS
 
-CQRS separate your reads and writes. Command and Query Responsibility Segregation
+CQRS or Command and Query Responsibility Segregation is an intimidating acronym
+with a very simple meaning - separate your reads from your writes. It was
+popularized by Greg Young. [@18_fowler_2011]
 
- /commands for writes
- /query for query
- /updates for real time push
+In typical CRUD based APIs reading and writing are intertwined. Typically the
+same server will serve both updates to resources in addition to queries on them.
+Yet in most applications read and write loads are seldom equal.
 
+The simplest reason for CQRS is scaling. If your reads and your writes are
+separated then it's possible to independently scale them. If your application is
+write heavy you may choose to have more servers servicing writes, likewise, if
+your application is more read heavy, you may want to add a few more servers for
+queries. [@18_fowler_2011]
 
-Reduces API proliferation
+Bobby Calderwood suggests a simple way to achieve this, by defining only three
+end points. [@tbl:cqrs_endpoints] lists them. Three endpoints greatly simplifies
+the HTTP API endpoint proliferation typically experienced in CRUD systems.
+[@23_calderwood_2015]
 
-Simplicity
+ Path                   Used For 
+ ----                   -------- 
+ /command               Issuing a command
+ /query                 Performing a query (pull)
+ /update                Real-time push via WebSockets or SSE
 
+: CQRS HTTP API endpoints {#tbl:cqrs_endpoints}
+
+Martin Fowler advises caution when implementing CQRS, as it can add plenty of
+additional, unneeded complexity if the domain it is applied to does not benefit
+from it. [@18_fowler_2011] Bobby Calderwood argues that CQRS complexity mostly
+occurs when it is applied on the micro level, particularly with OOP principles.
+He does not see the same problems occurring when it is applied at the macro
+level, i.e HTTP API level, with a functional programming approach.
+[@23_calderwood_2015]
 
 ## Avoiding the tarpit
 
