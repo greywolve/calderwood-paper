@@ -305,17 +305,81 @@ it.
 
 ## Service-orientated architecture and Microservices
 
-Bobby:
+Service-orientated architectural or SOA is a design paradigm centered around the
+idea of multiple services, which collaborate to provide functionality to the
+overall system. Each service is autonomous, and operates as a separate operating
+system process. All communication between these services has be occur through a
+network protocol, rather than direct method calls within the same process. No
+memory is shared directly between services, and each service usually has it's
+own database. [@28_newman]
 
--  Netflix image of topology
-- Proliferation of API's
-- Teams reinvent the wheel. Databases cache, devops, authentication, authorization.
+SOA developed as an alternative to large monolithic applications, where
+different parts of the application were often tightly coupled, and difficult
+replace, or rewrite. SOA aimed to address this by building an application out of
+composable services, with strict interface boundaries. [@28_newman]
 
-- All end points are subtly different, makes building clients hard.
+Microservices emerged from real-world use as one specific way of implementing
+SOA. It involves much finer grained services, which focus on a doing single
+tasks well. In general the goal for each service is to have a small amount of
+code, that is easy to understand, change and maintain. [@28_newman]
+
+Microservices are said to have a number of benefits: [@28_newman]
+
+- They promote technology heterogeneity. Services can be written using any
+  language or technology stack. This means that if one part of the system
+  require more performance then it's possible to rewrite it later in a faster
+  language, or more suitable technology stack.
+
+- Services can be independently scaled. In a large monolithic application,
+  everything must scale together, but in a Microservice architecture the
+  cardinality of each service is independent.
+
+- Services are optimized for "replaceability". As long as a service maintains its
+  interface contract, it's possible to rewrite it, without affecting any other
+  parts of the system. 
+
+![Netflix topology](figures/netflix_topology.png){#fig:netflix_topology}
+
+But at the same time, they also have a number of tradeoffs: [@23_calderwood_2015]
+
+- There is an explosion of HTTP API endpoints. A graph of connections between
+  Netflix services is shown in [@fig:netflix_topology].
+  [@33_netflix_ribbon_2016] So many end points quickly become a nightmare to
+  reason about.
+
+- Teams tend to reinvent the wheel constantly. Each service has to solve the
+  same set of problems, but often in a different technology stack. Databases,
+  cache, deployment, authentication, and authorization to name a few.
+
+- All end points are subtly different, which makes building clients for these
+  services more difficult. It creates an additional problem to the front-end
+  teams, which now need to be concerned with both user experience, and how to
+  orchestrate resources across a large number of varying HTTP API endpoints.
+
 
 ## Stream Processing
 
-## Distributed Logs 
+Stream processing typically involves processing large amounts of events in
+sequential order. These event form an event stream. As new events are generates,
+they are added to the stream, which is usually a persistent queue of some type,
+that guarantees order, such as Apache Kafka. It is very closely related to Event
+Sourcing, and big Internet companies such as Linkedin typically have teams of
+data analysts consuming these events in order to improve their products.
+[@37_kleppmann_2016]
+
+![Stream Processing [@37_kleppmann_2016]](figures/stream_processing.png){#fig:stream_processing}
+
+Event streams can be consumed by multiple consumers in parallel, and offer a
+unidirectional flow of data through the system. As seen in
+[@fig:stream_processing] the flow of events can be used to update full-text
+search indexes, such as Solr, build read models, rebuild caches, and even
+produce new output streams which can be joined with other event streams, or
+consumed by other downstream consumers. [@37_kleppmann_2016]
+
+Event streams are often connected to distributed stream processing frameworks,
+which attempt to shield developers from the operation complexity of distributing
+work across a cluster of machines. Such frameworks include Samza, Storm, Onyx,
+Spark, and Flink. [@37_kleppmann_2016]
 
 ## Websockets
 
