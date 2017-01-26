@@ -2,6 +2,7 @@
 
 ## Project Background
 
+
 Design an application template for a web application back-end which meets the
 following criteria:
 
@@ -12,6 +13,8 @@ following criteria:
 - Audit trail support.
 - Time travel.
 - Simple to test, debug, and maintain.
+
+![CRUD shopping cart](figures/shopping_cart_state.png){#fig:shopping_cart_state}
 
 ## Project Objectives
 
