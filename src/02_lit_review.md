@@ -405,6 +405,26 @@ applications. [@5_wang_salim_moskovits_2013]
 
 ## CAP Theorem 
 
+Eric Brewer first introduced the CAP Theorem in 2000. The theorem centers around
+the idea that there is a fundamental tradeoff between consistency, availability,
+and partition tolerance in distributed systems. [@31_gilbertlynch_2012]
+
+An informal definition for consistency is simply that that each server returns
+the right response to each request. Right in this context means, correct
+according to the desired service specification. [@31_gilbertlynch_2012]
+
+Availability means that each request to a server will eventually receive a
+response. [@31_gilbertlynch_2012]
+
+Partition tolerance refers to the underlying system. Networks are unreliable and
+it is highly likely that servers are partitioned into groups that cannot
+communicate with each other for extended periods of time. [@31_gilbertlynch_2012]
+
+In broad terms the CAP Theorem implies that you can either have a consistent and
+partition tolerant system (CP), or a an available and partition tolerant system
+(AP). It is impossible to have a CA system, unless that system all within in a
+single node, and is not networked. 
+
 Gilbert, SethLynch, and Nancy offer a proof for the CAP Theorem that is
 relatively straight forward: [@31_gilbertlynch_2012]
 
@@ -424,6 +444,9 @@ relatively straight forward: [@31_gilbertlynch_2012]
 > hence it cannot determine whether to return response $v1$ or response $v2$. It
 > has the choice to either eventually return a response (and risk returning the
 > wrong response) or to never return a response.
+
+Event Sourced systems typically favor the AP side of the CAP Theorem, trading
+consistency for high availability. [@19_thompson_2012]
 
 ## Functional programming
 
