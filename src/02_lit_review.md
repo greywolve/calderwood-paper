@@ -405,6 +405,26 @@ applications. [@5_wang_salim_moskovits_2013]
 
 ## CAP Theorem 
 
+Gilbert, SethLynch, and Nancy offer a proof for the CAP Theorem that is
+relatively straight forward: [@31_gilbertlynch_2012]
+
+> Consider an execution in which the servers are partitioned into two disjoint
+> sets: $\{ p_1 \}$ and $\{ p_2, . . . , p_n \}$. Some client sends a read
+> request to server $p2$. Since $p1$ is in a different component of the
+> partition from $p2$, every message from $p1$ to $p2$ is lost. Thus, it is
+> impossible for $p2$ to distinguish the following two cases: 
+>
+> - There has been a previous write of value $v1$ requested of $p1$, and $p1$
+> has sent an ok response.
+>
+> - There has been a previous write of value $v2$ requested of $p1$, and $p1$
+> has sent an ok response. 
+>
+> No matter how long $p2$ waits, it cannot distinguish these two cases, and
+> hence it cannot determine whether to return response $v1$ or response $v2$. It
+> has the choice to either eventually return a response (and risk returning the
+> wrong response) or to never return a response.
+
 ## Functional programming
 
 ## Clojure
