@@ -303,12 +303,11 @@ it, accept only essential complexity, and if you can't avoid it, for reasons
 of ease of use, or performance, then separate it out in order to better manage
 it.
 
-## Software evolvability
-
 ## Service-orientated architecture and Microservices
 
 Bobby:
 
+-  Netflix image of topology
 - Proliferation of API's
 - Teams reinvent the wheel. Databases cache, devops, authentication, authorization.
 
@@ -318,8 +317,27 @@ Bobby:
 
 ## Distributed Logs 
 
-
 ## Websockets
+
+Todd L. Montgomery gave an excellent talk at React 2014 on the need to embrace
+asynchrony in our web applications. He argues that synchronous (or blocking)
+calls tend to produce systems that are both coupled, and less performant.
+Asynchronous systems allow requests to be processed independently of responses,
+which encourages loose coupling. In addition to this, while an asynchronous
+request is being made, other work can be done on the client while it waits for a
+response. While it is possible to make HTTP requests asynchronously via threads
+or callbacks, in practice a large amount of developers tend to wait for a
+response in order to do error handling, before continuing. [@27_montgomery_2014]
+
+In the past clients have had to result to solutions such as HTTP long polling in
+order to break the coupling between HTTP requests and responses. The HTML5
+standard sought to include a better solution to the problem, in the form of the
+Websocket Protocol (RFC 6455), which allows a full duplex, bidirectional
+connection from client to server. Websockets piggy back on top of the HTTP
+protocol, and can be seen as thin layer of abstraction on top the underlying TCP
+connection. The results in much higher performance, saving bandwidth, CPU power,
+and latency, and making Websockets ideal for real-time, asynchronous
+applications. [@5_wang_salim_moskovits_2013]
 
 ## CAP Theorem 
 
