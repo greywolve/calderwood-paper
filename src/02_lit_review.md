@@ -450,9 +450,99 @@ consistency for high availability. [@19_thompson_2012]
 
 ## Functional programming
 
+Fogus and Houser provide a workable definition for functional programming:
+[@4_fogushouser_2014]
+
+> Whether your own definition of functional programming hinges on the lambda
+> calculus, monadic I/O, delegates, or java.lang.Runnable, your basic unit of
+> currency is likely some form of procedure, function, or method—herein lies the
+> root. Functional programming concerns and facilitates the application and
+> composition of functions. Further, for a language to be considered functional,
+> its notion of function must be first- class. First-class functions can be
+> stored, passed, and returned just like any other piece of data. Beyond this core
+> concept, the definitions branch toward infinity; but, thankfully, it’s enough
+> to start.
+
+Hughes argues that other functional programming features, such as higher-order
+functions, and lazy evaluation, lead to better structured and more modular
+programs, with less lines of code and less flow control statements. [@9_hughes_1989]
+
+Functional programming tends to focus on minimizing state by emphasizing the use
+of pure functions. Pure functions resemble mathematical functions in the sense
+that always return the exact same output, given the same inputs. This is known
+as referential transparency. In simpler terms, pure functions do not have side
+effects. Programs that consist primarily of pure functions have minimal state,
+and are thus easy to reason about and test. [@10_moseleymarks_2006]
+
 ## Clojure
+
+A good description of Clojure can be taken from it's website: [@41_clojureorg_2016]
+
+> Clojure is a dynamic, general-purpose programming language, combining the
+> approachability and interactive development of a scripting language with an
+> efficient and robust infrastructure for multithreaded programming. Clojure is
+> a compiled language, yet remains completely dynamic – every feature supported
+> by Clojure is supported at runtime. Clojure provides easy access to the Java
+> frameworks, with optional type hints and type inference, to ensure that calls
+> to Java can avoid reflection.
+>
+> Clojure is a dialect of Lisp, and shares with Lisp the code-as-data philosophy
+> and a powerful macro system. Clojure is predominantly a functional programming
+> language, and features a rich set of immutable, persistent data structures.
+> When mutable state is needed, Clojure offers a software transactional memory
+> system and reactive Agent system that ensure clean, correct, multithreaded
+> designs.
+
+Clojure has seen steady industry adoption in the last few years, and continues
+to gain popularity. It has been marked as "Adopt" on the ThoughtWorks technology
+radar since October 2012. [@42_thoughtworks_clojure_2016]
+
+The language itself has a rich set of data structure literals, and strongly
+emphasizes programming with values. Clojure also defines extensible data
+notation, or EDN, to represent Clojure programs. This is effectively a way for
+Clojure to serialize programs, and in particular, data structures, and pass them
+over the network to communicate with other Clojure processes natively. [@43_edn]
+
+Clojurescript is a variant of Clojure that targets Javascript as a host
+language. This makes it possible to write fully isomorphic web applications,
+with Clojure on both the client (web browser) and server. [@4_fogushouser_2014]
 
 ## Datomic
 
-- Very low level event sourcing
+![Datomic's architecture [@29_rationale_2016]](figures/datomic.png){#fig:datomic_arch}
 
+Datomic is a distributed, immutable, cloud-ready database which supports ACID
+Transactions, joins, and boasts a powerful logical query language - Datalog.
+What makes Datomic particular interesting is it's notion of the database as a
+value. Since Datomic databases consist of a time ordered series of immutable
+facts, known as datoms, it is possible to return an exact immutable value of the
+database at any point in time. [@29_rationale_2016]
+
+The Datomic team argues that databases have traditionally been called up to
+deliver numerous services, such as coordination, consistency, indexing, storage,
+and queries. Datomic breaks these services apart into separate components, which
+each do a single task well. This, among other benefits, allows the moving of
+query capabilities from the database to the application, effectively giving
+applications scalable and elastic intelligence. [@29_rationale_2016]
+
+The architecture of Datomic can be seen in [@fig:datomic_arch] it consists of
+the following parts:
+
+- **Peers.** These are a library which gets embedded into an application. Peers
+  submit transaction to the transactor, and accept changes from it. They also
+  provide data access, caching and query capability to the application, and can
+  directly read from storage as needed. [@29_rationale_2016]
+
+- **Transactor.** Accepts transactions, and processes them serially, and commits the results
+  to storage. It then transmits any changes to the peers. The transactor is also responsible
+  for building indexes in the background. [@29_rationale_2016]
+
+- **Storage.** This provides an interaface to highly reliable and redunant
+  storage, and includes backends for a number of databases, such as Amazon
+  DynamoDB, and PostgresSQL. There is also an optional Memcached layer, which
+  provides further caching for production use. [@29_rationale_2016]
+
+Datomic is proprietary software, but offer a free version, limited to two peers,
+which uses the H2 database engine and is suitable for small production
+deployments. It also offers a professional version which provides a year of
+access and updates for free.
