@@ -84,8 +84,8 @@ The following problems are to be investigated and researched.
 
 ### List of Objectives
 
-The goal of this project is to design a template for the back-end of a web based
-application, with the following objectives:
+The goal of this project is to design and implement a template for the back-end
+of a web based application, with the following objectives:
 
 - First class support for data science.
 - Fully asynchronous.
@@ -136,10 +136,23 @@ interacting with the back-end, and testing it. This front-end application does
 not form part of the scope of this project, and therefore it's implementation,
 or any details surrounding it will not be discussed at all.
 
-## Terminology
-
-Todo
-
 ## Plan of Development
 
-Todo
+This project report has the following structure:
+
+*Chapter 1* introduces the research project, it's objectives, scope, limitations and motivation.
+
+*Chapter 2* consists of a literature review of relevant sources both in academia and industry.
+
+*Chapter 3* gives an overview of the project methodology.
+
+*Chapter 4* details the design of the application template.
+
+*Chapter 5* presents the implementation of the application template design.
+
+*Chapter 6* reviews both functional and performance tests performed, and the results of such tests.
+
+*Chapter 7* is a discussion of the testing results, and overall implementation
+in light of the project objectives.
+
+*Chapter 8* lists recommendations for future work.
