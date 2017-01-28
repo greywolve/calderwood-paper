@@ -1,4 +1,4 @@
-#Literature Review
+# Literature Review
 
 ## Place-orientated Programming
 
@@ -31,7 +31,7 @@ facts. [@36_hickey_2012]
 A well designed information system would have first class support for facts and
 operate in a very similar fashion to pre-computer record keeping systems.
 
-## CRUD flavoured REST
+## CRUD Flavored REST
 
 REST or REpresentational State Transfer is the brain child of Rory Fielding, and
 was first described in his doctoral thesis. It is effectively a generalization
@@ -98,9 +98,9 @@ He also lists some positive aspects: [@23_calderwood_2015]
 - It may also be a better choice if you cannot afford extra operational costs of
   an added messaging and event tracking system.
 
-## Essential Rest
+## Essential REST
 
-Essential REST exemplifies the heart of rest, and it's good parts. These
+Essential REST exemplifies the heart of REST, and it's good parts. These
 include: [@23_calderwood_2015]
 
 - Clear communication semantics for big distributed systems in low-rust,
@@ -255,7 +255,7 @@ He does not see the same problems occurring when it is applied at the macro
 level, i.e HTTP API level, with a functional programming approach.
 [@23_calderwood_2015]
 
-## Avoiding the tarpit
+## Avoiding the Tarpit
 
 According to Mosely and Marks in their iconic 2006 paper, "Out of the Tarpit",
 complexity is the root cause of most problems in software development, because
@@ -303,7 +303,7 @@ it, accept only essential complexity, and if you can't avoid it, for reasons
 of ease of use, or performance, then separate it out in order to better manage
 it.
 
-## Service-orientated architecture and Microservices
+## Service-orientated Architecture and Microservices
 
 Service-orientated architectural or SOA is a design paradigm centered around the
 idea of multiple services, which collaborate to provide functionality to the

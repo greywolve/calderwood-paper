@@ -9,6 +9,7 @@ Topics included:
 
 - Event Sourcing.
 - CQRS.
+- Microservices.
 - Data science.
 - Steam processing.
 - Software complexity.
