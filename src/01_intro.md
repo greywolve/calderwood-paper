@@ -10,7 +10,7 @@ implementation of a solution. His presentation introduced the ideas of Event
 Sourcing and CQRS, as ways of combating some of these problems. [@23_calderwood_2015]
 
 A second project, by a local Cape Town company, Yuppiechef also served as
-motivation for exploring this topic. Yuppiechef build a small prototype of an
+motivation for exploring this topic. Yuppiechef built a small prototype of an
 Event Sourced / CQRS system which used Onyx, Kafka, Datomic and Amazon's
 DynamoDB. Their code included a very through writeup, describing the problem
 they were solving, along with the actual design. [@15_introduction_to_cqrs_server_2015]
@@ -70,30 +70,36 @@ modify everything to suit their application.
 
 ## Project Objectives
 
-Design an application template for a web application back-end which meets the
-following criteria:
+### Problems to be Investigated
+
+The following problems are to be investigated and researched.
+
+- How to build Event Sourced / CQRS systems, and their benefits and tradeoffs.
+- The importance of data science, and how applications can make data analysis
+  simpler.
+- Asynchronous communication on the web and how to decouple requests from
+  responses.
+- How to architect flexible and scalable systems.
+- How to reduce HTTP API surface area, and build smaller, simpler APIs.
+
+### List of Objectives
+
+The goal of this project is to design a template for the back-end of a web based
+application, with the following objectives:
 
 - First class support for data science.
 - Fully asynchronous.
 - Flexible architecture which able to adapt to change and scale.
 - Initial support for 500-1000 concurrent users on modest hardware.
 - Audit trail support.
-- Time travel.
 - Simple to test, debug, and maintain.
-
-Todo
-
-### Problems to be Investigated
-
-Todo
-
-### List of Objectives
-
-Todo
 
 ### Purpose of the Project
 
-Todo
+The purpose of this project is to provide a foundation for a small to medium
+sized team that would like to architect a modern web application with first
+class support for data science, that is flexible, scalable, maintainable, and
+performant enough.
 
 ## Scope and Limitations
 
