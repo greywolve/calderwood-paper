@@ -425,7 +425,7 @@ partition tolerant system (CP), or a an available and partition tolerant system
 (AP). It is impossible to have a CA system, unless that system all within in a
 single node, and is not networked. 
 
-Gilbert, SethLynch, and Nancy offer a proof for the CAP Theorem that is
+Seth and Nancy offer a proof for the CAP Theorem that is
 relatively straight forward: [@31_gilbertlynch_2012]
 
 > Consider an execution in which the servers are partitioned into two disjoint
