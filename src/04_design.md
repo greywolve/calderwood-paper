@@ -70,7 +70,10 @@ Since the overall design is a CQRS system, there can be a number of *Query
 Services*, which can together support excellent read scaling. Read scaling is
 also a big strength of Datomic.
 
-## Commands and Events
+## Commands
+
+*Commands* represent a present tense action, and are handled and converted into
+past tense events, which are facts. A command can produce one or more events.
 
 *Commands* can be represented by a map or object, and have the following fields:
 
@@ -84,6 +87,8 @@ User UUID      UUID              The user who issued the command's unique identi
 Client ID      String            The client where the command came from's ID.
 Client Seq     Long              The sequence number of client.
 
+Only UUID, Name, and Data are always required, the rest are optional.
+
 An example command in Clojure EDN:
 
 ```clojure
@@ -96,7 +101,44 @@ An example command in Clojure EDN:
  :command/client-seq 0}
 ```
 
-## Effective Use of Datomic
+## Events
+
+*Events* represent a past action that as occurred. Events are facts. They are
+aggregated into entities, that are useful to the domain of the application,
+and than can be queried for.
+
+*Events* can be represented by a map or object, and have the following fields:
+
+Field              Type              Description
+-----              ----              -----------
+UUID               UUID              The event's unique identifier.
+Command UUID       UUID              The parent command's unique identifier.
+Name               Clojure Keyword   The name of the event.
+Data               Clojure Map       The event data, key/value pairs.
+Meta               Clojure Map       Event metadata, key/value pairs.
+Source User UUID   UUID              The user who issued the event's unique identifier.
+Client ID          String            The client where the event came from's ID.
+Client Seq         Long              The sequence number of client.
+
+
+Only UUID, Command UUID, Name, and Data are always required, the rest are
+optional. Command UUID is useful for matching an event with a logged command and
+can be very handy for debugging purposes.
+
+An example event in Clojure EDN:
+
+```clojure
+{:event/uuid #uuid "588d97e8-c456-47a0-bffd-84af06223399"
+ :event/command-uuid #uuid "588d97e8-c456-47a0-bffd-84af06223387"
+ :event/name :page-view
+ :event/data {:page-view/url "http://www.example.com"}
+ :event/meta {:send-timestamp #inst "2017-01-02T07:17:03.944-00:00"}
+ :event/source-user-uuid #uuid "588d96ef-173e-422c-b89b-bb2de199322c"
+ :event/client-id  "588d96ef-4c26-4769-9b86-bf893aebfa72"
+ :event/client-seq 0}
+```
+
+## Datomic Transaction Annotation
 
 If the reader is unfamiliar with Datomic, a good primer was written by Daniel Higginbotham,
 and is available online. [@46_datomic_primer]
@@ -136,9 +178,9 @@ while Jill does not.
 Datoms are very low level, and working with them in production, as the author
 has for a few years, can be tedious. Even though all facts are stored, we are
 often more interested in collections of facts being asserted at the same time,
-rather than individual facts. Often we are more interested in actual events that
+rather than individual facts. We are more interested in actual events that
 happened, like a user being created, as opposed to a particular attribute of
-that user being created..
+that user being asserted.
 
 In light of this, this project uses Datomic in a way which gives an emphasis on
 collections of datoms, otherwise known as transactions. Since the time component
@@ -152,16 +194,93 @@ being transacted with additional data. For example:
  [65 :event/name :user-created 65 true]]]
 ``` 
 
-This now gives us a clear way to label transactions as a particular event, which is meaningful
-to our domain. We can query any entity attribute, find it's transaction entity id, and establish
-which event caused this change to happen.
-
+This now gives us a clear way to label transactions as a particular event, which
+is meaningful to our domain. We can query any entity attribute, find it's
+transaction entity id, and establish which event caused this change to happen.
+We can also attach all the other fields of the event to the transaction entity,
+gives us a very clear picture of any details.
 
 ## HTTP API endpoints
 
+The goal of this project is to minimize API surface area. Thanks to CQRS, this is
+possible by limiting ourselves to two endpoints only. This makes it much
+easier for clients to interface with our system, and prevents a proliferation of
+endpoints from occurring.
+
+
+HTTP Verb  Path                   Used For
+---------  ----                   -------
+GET        /ws                    Websocket connection for sending commands / receiving updates.
+POST       /query                 Performing queries and getting query results.
+
 ## Authentication and Authorization
 
+Authentication and authorization tend to be very application specific, but the
+project has included a usable form of user authentication, since most
+applications will require it.
+
+Authentication is achieved through the use of an encrypted session browser
+cookie, which holds a session UUID. Whenever a user logs in successfully, a
+session entity in the database is created, which contains their user UUID, and
+this session UUID is stored in the cookie returned to them.
+
+When the user makes future requests, the system decrypts the cookie, finds their
+session UUID, queries the database for it, and from that, it's possible to find
+the user's UUID and attach it to the HTTP request. Authorization can then be
+performed by checking that the user UUID has access to the particular resource
+it is attempting to access.
+
+The project contains only basic authorization, which simply checks that the user
+has in fact authenticated, and is an actual existing user an the system,
+otherwise a 401 response is returned, indicating that the user is denied access.
+
 ## Websocket Application Protocol
+
+As explained in the high level overview, the Websocket protocol is only
+responsible for delivery of a message, there is no way to first do additional
+processing before acknowledging the message. The onus is therefore on the
+application to develop it's own protocol for acknowledgment.
+
+A protocol for this purpose was developed using Clojure's EDN data structures:
+
+```clojure
+;; Sending only
+[:cmd <client-id> <client-seq> <data>]
+
+;; Receiving only
+[:cmd-ack <client-id> <client-seq>]
+
+[:error <client-id> <client-seq> <err-msg>]
+
+[:update <client-id> <client-seq> <data>]
+``` 
+When a client wants to send a command, it sends it as a Clojure vector beginning
+with the keyword *:cmd*, and followed by the client's id, the sequence number of
+this message, and the data representing the command. The client id, together
+with the client sequence number enable the client to later know which message
+was acknowledged, or failed.
+
+An example of sending a command:
+
+```clojure
+[:cmd "12345" 0 {:command/name :view-page
+                 :command/data {:page-view/url "http://www.example.com"}}]
+``` 
+
+There are two possible responses to this command, either a Clojure vector
+beginning with *:cmd-ack*, indicating that the command was successfully accepted
+by the server, or otherwise a Clojure vector beginning with *:error* if the
+command failed. The error vector includes an error message, which gives a reason
+for the failure.
+
+Finally, updates can be pushed to the client. These are fully processed
+commands, which have been returned as events that the initial command produced.
+These come in the form of a Clojure vector beginning with *:update*, and include
+the client id, and client sequence number if the client wants to correlate an
+event with a previously issued command. This is useful for user feedback, since a
+command acknowledgment only indicates that the command was accepted for
+processing, not that is has already been processed.
+
 
 ## Websocket Server
 
