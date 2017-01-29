@@ -379,3 +379,32 @@ thread.
 
 ## Query Service
 
+The project emphasizes a single query endpoint. This may seem strange at first,
+but it has the benefit of keeping the query service simple.
+
+The query endpoint accepts queries in EDN format, as a Clojure map with the following fields:
+
+Field          Type              Description
+-----          ----              -----------
+Name           Clojure Keyword   The name of the query.
+Data           Clojure Map       The query parameters.
+
+An example query:
+
+```clojure
+{:query/name list-page-views
+ :query/data {}}
+```
+
+Queries consist of two stages. Validating the incoming query data, and then
+performing the query and returning the results. Both of these cases are covered
+by Clojure multi-methods and dispatching on the name of the query.
+
+Thanks to Datomics excellent read scaling it is possible to have multiple query
+services running independently. This is made possible by the Datomics design
+choice to keep a portion of the database (or the entire database if the is
+enough memory available) in memory via the Datomic Peer. It is thus simple for
+the application to handle increased read load, and scale appropriately .
+
+
+
