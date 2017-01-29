@@ -78,6 +78,13 @@ Performing a query using the console. Performing a valid query is shown in
 
 ## Performance Testing
 
+Performance testing was done using a modern laptop with the following specifications:
+
+- Operating System: OSX (10.11.6)
+- CPU: 2.6 Ghz Intel Core i7
+- Memory: 16 GB 1600 MHZ DDR3
+- Disk: 500 GB SSD
+
 The code used for performance testing is shown below.
 
 ```clojure
