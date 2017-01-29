@@ -354,6 +354,13 @@ There are two callbacks that need to be registered:
 
 ### Command Queue
 
+We specify a protocol called CommandQueue, which *Command Queue*-like components
+can implement. There is only one method, *put-command*, which adds the command
+given to the queue. A protocol was chosen here to allow other queue
+implementations possible, without having to modify any code in the queue's
+producer. This makes it possible to swap in something like Apache Kafka, as
+opposed to the *ArrayBlockingQueue* implementation we went with below.
+
 ```clojure
 (defprotocol CommandQueue
   (put-command [queue cmd]))
@@ -370,6 +377,18 @@ There are two callbacks that need to be registered:
 ```
 
 ## Command Processor
+
+The *Command Processor* runs in it's own thread, and consumes inter-process
+from the *Command Queue*. We choose to *poll* rather than *take* since we want
+to respect the *running?* boolean which controls when to stop the while loop,
+and take would block forever, until a command was put on the queue.
+
+Incoming commands are converted to events by *handle-command* before being
+aggregated into Datomic transactions by *aggregate-event*. We then attempt to
+transact with an exponential backoff.
+
+Note how we get a current value of the Datomic database, which we pass to both
+*handle-command*, and *aggregate-event*.
 
 ```clojure
 (defrecord CommandProcessor [local-command-queue datomic running?]
@@ -411,6 +430,11 @@ There are two callbacks that need to be registered:
 
 ## Datomic Transaction Retry
 
+The transact retry follows the algorithm outlined in the design chapter. We
+ensure that we only retry on timeout or Transactor unavailable (if it's down)
+exceptions, and never on application logic related errors that will never be
+resolved by a retry.
+
 ```clojure
 (defn transact-with-exponential-backoff-retry! [conn running? txes]
   (let [max-backoff-ms 64000
@@ -440,6 +464,19 @@ There are two callbacks that need to be registered:
 ```
 
 ## Update Handler
+
+The *Update Handler* component also runs in it's own thread. During each
+iteration, we use the *tx-report-queue* function to obtain a reference
+to the queue. We then use *poll* for similar reasons as the *Command Processor*.
+
+Queue items are maps, which contain keys for the transaction data (*tx-data*), and
+references to the value of the database before the transaction, and the value
+after. We pull off the value after, and use it to resolve the transaction
+entity. To do this we first need to obtain the current *t* value of the after
+database, and use an API call to convert it to a valid transaction entity id for
+that point in time. Finally we are able to use Datomic's entity API to fetch the
+transaction entity itself, and extract the event data. We then broadcast this
+event data to all connected Websocket clients, completing the command round trip
 
 ```clojure
 (def MILLISECONDS java.util.concurrent.TimeUnit/MILLISECONDS)
@@ -499,6 +536,25 @@ There are two callbacks that need to be registered:
 ```
 
 ## Query Service
+
+The *Query Service* is able to exist completely independently of any of the
+other components, it's only requirement is access to a Datomic Peer. However for
+our purposes it was fine to simply embed it with our existing routes in the
+*AppHandler*.
+
+The service expects an incoming *POST* with an EDN map, containing a valid query
+request. We use a utility function to convert the body *InputStream* into a
+Clojure map, which is then passed to the coerce-query function for validation.
+
+The validation function returns a tuple of either *:ok*, and the validated data,
+or *:error* with a possible reason for the failure. We also attach the identity
+of the user making the request to the query data before it gets validated, in
+case it is needed for a particular query.
+
+If validation passes, then we can perform the query via the *do-query* function,
+and return an EDN response with the query results, otherwise we return an EDN
+based error response.
+
 
 ```clojure
 (defn query-handler [request]
