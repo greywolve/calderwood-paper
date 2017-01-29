@@ -1,8 +1,50 @@
 # Testing
 
-Todo
-
 ## Functionality Testing
+
+## Adding a new command
+
+```clojure
+(defmethod -coerce-command :visit-page [{:keys [command/data] :as command}]
+  (if (and
+       (:command/user-uuid command)
+       (s/valid? :command.data/visit-page data))
+    [:ok command]
+    [:error command :command-validation-failed]))
+
+(defmethod -handle-command :visit-page [db {:keys [command/data
+                                                   command/meta]
+                                              :as command}]
+  [(event command :page-view data meta)])
+  
+  
+(defmethod -aggregate-event :page-view [db {:keys [event/data]
+                                         :as event}]
+  [{:db/id (d/tempid :db.part/user)
+    :page-view/url (:page-view/url data)
+    :page-view/user (:event/user event)}])
+```
+
+## Adding a new query
+
+```clojure
+(defmethod -coerce-query :list-page-views [query]
+  [:ok query])
+
+(defmethod -do-query :list-page-views [db query]
+  (->> (d/q '[:find ?p ?tx
+              :where [?p :page-view/url _ ?tx]]
+            db)
+       (mapv (fn [[p tx]]
+               (let [{:keys [page-view/url
+                             page-view/user]} (d/entity db p)]
+                 {:page-view/timestamp (:db/txInstant (d/entity db tx))
+                  :page-view/url url
+                  :page-view/user (select-keys
+                                   user
+                                   [:user/uuid
+                                    :user/email])})))))
+```
 
 ### Login
 
