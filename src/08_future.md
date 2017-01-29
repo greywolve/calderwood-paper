@@ -13,3 +13,5 @@ As for existing recommendations, it would be good to explore means of making the
 current implementation more performant, perhaps by using Records more instead of
 Maps, and finding other ways to optimize, this would require profiling the code
 in order to find bottlenecks.
+
+# References
