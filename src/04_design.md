@@ -281,10 +281,37 @@ event with a previously issued command. This is useful for user feedback, since 
 command acknowledgment only indicates that the command was accepted for
 processing, not that is has already been processed.
 
-
 ## Websocket Server
 
+The *Websocket Server* has a few responsibilities:
+
+- It needs to accept incoming Websocket connections, and ensure they are authenticated.
+- It needs to index incoming connection by their user UUID, so that update pushes can look up users
+  in order to send them updates.
+- It needs to validate commands, and acknowledge commands, or otherwise return an error to the client.
+
+Websocket connections need to be managed, and when the server wishes to send
+updates to clients, it needs to be able to find those clients connections. This
+is where indexing comes in. No doubt this is application domain specific. For
+example, a product which has company entities may wish to index incoming
+connections by company id instead, so that updates can easily to sent to all
+users within a particular organization. This project has elected to show one way
+of indexing users, by their UUID. This ties in nicely with the fact that events
+contain a source user UUID field, which allows the Update Handler to send
+updates back to a specific user, or simply broadcast to all users, or a subset
+of users only. Indexing is typically achieved by using a map data structure,
+where the keys are UUIDs, and the values are the actual connection object.
+
 ## Command Processor
+
+The *Command Processor* is the heart of the system. It accepts validated commands,
+produces events, and ensures those events are aggregated, and transacted to
+Datomic. 
+
+Two stages - handle command, aggregate event
+
+The *Command Processor* can exist independently of the main system, in it's own process if need be, provided an external
+distributed persistent queue is used.
 
 ## Datomic Transaction Retry
 
