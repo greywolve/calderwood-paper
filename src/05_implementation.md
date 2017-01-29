@@ -168,7 +168,8 @@ connections etc, before the Java Virtual Machine (JVM) shuts down.
 
 We define HTTP routes using the Compojure library, which gives a declarative way
 of expressing all our application routes. Each route takes a request, and
-returns a response, and conforms the Ring Specification.
+returns a response, and conforms the Ring Specification. Requests and responses
+are simply Clojure maps. [@50_ring_spec]
 
 The Ring Specification also describes middleware, which are essentially higher
 order functions, which wrap request handlers, and are able to inject information
@@ -224,6 +225,17 @@ passed to the web sever when the system is started.
 
 ## Authentication and Authorization
 
+The implementation follows the recommendations in the design chapter. The login
+handler takes care of authenticating the user's credentials, creating a session
+in the database, and returning an encrypted session cookie with the created
+session UUID.
+
+We also see the implementation of the *wrap-identify* middleware, which tries
+to find a valid session in the database and a matching user. If it finds a valid
+user UUID, it then attaches it to the request under an *:identity* key.
+
+To logout, we simply clear the session cookie, by setting it to *nil*.
+
 ```clojure
 (defn user-credentials-valid? [db user password]
   (util/password-hash-valid? password
@@ -277,6 +289,28 @@ passed to the web sever when the system is started.
 ```
 
 ## Websocket Server
+
+The *Websocket Server* relies directly on the command-queue, and Websocket
+channels.
+
+When the *ws-handler* function initially gets called we need to first check if
+the request has been authenticated, by looking for the *:identity* key in the
+request, if this is missing we immediately return an *unauthorized* response.
+
+If the request is indeed authenticated, then we add the user's UUID to the user
+UUID to Websocket connection index.
+
+*HTTP-Kit* provides a simple API for further dealing with Websocket connections.
+There are two callbacks that need to be registered:
+
+- *On close*, when the Websocket connection closes, in this case we need to
+  remove that user from the index of user UUID to Websocket connection.
+
+- *On receive*, gets called when a message is received from the connection. The
+  message needs to be validated, and either put on the command queue, and a
+  command acknowledge returned, or an error message should be sent to the
+  client.
+
 
 ```clojure
 (defn ws-handler [ws-channels command-queue request]

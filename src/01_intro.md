@@ -136,6 +136,11 @@ interacting with the back-end, and testing it. This front-end application does
 not form part of the scope of this project, and therefore it's implementation,
 or any details surrounding it will not be discussed at all.
 
+## Terminology
+
+- *UUID*, Universally unique identifier, a 128 bit number used to identify
+  information in computer systems.
+
 ## Plan of Development
 
 This project report has the following structure:
