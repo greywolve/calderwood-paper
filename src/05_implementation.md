@@ -1,6 +1,13 @@
 # Implementation
 
-## Dependencies
+This section details the implementation of the design, and consists primarily of
+actual code snippets with some minor commentary.
+
+## Project Setup and Dependencies
+
+The project uses *Leiningen*, the standard Clojure build tool to manage build
+the project and management dependencies. The *project.clj* file is shown below.
+It offers a declarative way of describing a project.
 
 
 ```clojure
@@ -56,7 +63,47 @@
                                        :pretty-print  true}}]})
 ```
 
+Dependencies of interest:
+
+- *Http-kit*, a high performance Clojure web server, with good Websockets support, and a simple clean Websocket API.
+- *Ring*, a Clojure HTTP abstraction, similar to Ruby's *Rack*, or Python's *WSGI*.
+- *Datomic free*, the Datomic peer library for the free version.
+- *Compojure*, an HTTP routing library.
+- *Scrypt*, an library for generating Scrypt based password hashes.
+
 ## Component system
+
+The project relies on ideas from Stuart Sierra's component library, but does not
+actually include the library, since we have so few components to manage, however
+all the principles suggested by him apply. [@49_component]
+
+Each component is defined as a Clojure record, which is essentially a class
+which supports hash map like operations, such as *assoc*, annd *dissoc*. Behind
+the hood it actually does compile to a Java class, unlike normal Clojure maps.
+Records also allow a protocol to be implemented, which is essentially like a
+Java interface. Thus each component also implements the Lifecycle protocol,
+which has the methods start and stop. The system itself is just a record which
+includes all the other components, and is a component itself, which can be
+started and stopped.
+
+Below we see each component being initialized and started. The order in which
+components are started and stopped does matter, and hence a bit of boilerplate
+code is needed to get everything wired up.
+
+We can see all the components in the design:
+
+- *datomic*
+- *ws-channels* is the component which holds the Websocket connections.
+- *update-handler*
+- *command-processor*
+- *app-handler* is the component which contains the *Query Service*.
+
+The component model allows us to store all application state in a single place,
+greatly reducing the amount of global state, and allows us to predictably start
+and restart our application during interactive development.
+
+We also add a shutdown hook, which will stop the system, and clean up any open
+connections etc, before the Java Virtual Machine (JVM) shuts down.
 
 ```clojure
 (defrecord DevSystem [datomic
@@ -118,6 +165,26 @@
 ```
 
 ## HTTP API endpoints
+
+We define HTTP routes using the Compojure library, which gives a declarative way
+of expressing all our application routes. Each route takes a request, and
+returns a response, and conforms the Ring Specification.
+
+The Ring Specification also describes middleware, which are essentially higher
+order functions, which wrap request handlers, and are able to inject information
+into the request before or after the handler receives it. Or it could modify the
+response of the handler, or it can choose not to call the handler at all and
+simply return an error response, there are many possibilities. [@50_ring_spec]
+
+Our routes include some standard Ring middleware, such as *wrap-keyword-params*
+which automatically converts incoming form data via a GET or POST into a more
+usable Clojure map. We also include some of our own middleware, such as
+*wrap-identity*, which attempts to add a user's UUID to the request, assuming
+there is a valid session UUID in the session cookie.
+
+The routes are then encapsulated by the *AppHandler* component, which gets
+passed to the web sever when the system is started.
+
 
 ```clojure
 (defn create-handler [datomic command-queue ws-channels]
