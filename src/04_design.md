@@ -304,16 +304,55 @@ where the keys are UUIDs, and the values are the actual connection object.
 
 ## Command Processor
 
-The *Command Processor* is the heart of the system. It accepts validated commands,
-produces events, and ensures those events are aggregated, and transacted to
-Datomic. 
+The *Command Processor* is the heart of the system. It accepts validated
+commands, produces events, and ensures those events are aggregated, and
+transacted to Datomic.
 
-Two stages - handle command, aggregate event
+There are two stages to the command processing process, handling commands, and
+aggregates events. These are both handled
+by functions which dynamically dispatch on the command or events name. It is
+possible to implement this as either a switch statement (known as a *case*
+statement in Clojure), but a better choice is to use Clojure's multi-methods,
+which offer an elegant solution to the expression problem.
+[@47_clj_multi]
 
-The *Command Processor* can exist independently of the main system, in it's own process if need be, provided an external
-distributed persistent queue is used.
+The handle command function takes the current Datomic database value, along with a
+command, and returns a vector of one or more events. The current database value can
+be queried in order to ensure constraints, or find data that the events will need.
+
+$$ HandleCommand(DatabaseValue, Command) \rightarrow [Event ...] $$
+
+The aggregate event function takes the current Datomic database value and an
+event, and produces a Datomic transaction, which is annotated with the event
+data. Datomic transactions are just data structures themselves, which makes this
+step essentially one of data transformation.
+
+$$ AggregateEvent(DatabaseValue, Event) \rightarrow DatabaseTransactionData $$
+
+The *Command Processor* can exist independently of the main system, in it's own
+process if need be, provided an external distributed persistent queue is used.
+In this case of this project it was elected to simply run the *Command
+Processor* in it's own thread.
 
 ## Datomic Transaction Retry
+
+It is possible for Datomic transaction to time out, and thus it is essential to
+have a retry strategy in place to combat this. It is further necessary to only
+retry on timeout, or any other such recoverable situation. It would be pointless
+to keep retrying on an application error, which will never correct itself.
+
+An exponential backoff algorithm was used to retry up till a maximum of 60s. The
+algorithm is a slightly modified version recommended by Google when retrying
+requests on its cloud platform. [@48_exp_backoff] It consists of the following
+steps:
+
+- Attempt the transaction.
+- If the transaction fails, wait 1 + a random number of milliseconds and retry
+- If the transaction fails, wait 2 + a random number of milliseconds and retry
+- If the transaction fails, wait 4 + a random number of milliseconds and retry
+- Repeat until the maximum back-of time of 60s.
+
+The random number of milliseconds is an integer between 0 and 1000.
 
 ## Update Handler
 
