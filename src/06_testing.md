@@ -45,26 +45,34 @@ Todo
         latch (java.util.concurrent.CountDownLatch. 1)
         ws-socket (ws/connect
                    (ws-uri-for-email "o@o.com")
-                   :on-receive (fn [msg]
-                                 (let [results (vswap! results
-                                                       conj
-                                                       {:arrive-ms (System/currentTimeMillis)
-                                                        :msg msg})]
-                                   (when (= (count results) (* 2 iterations))
-                                     (.countDown latch)))))
+                   :on-receive
+                   (fn [msg]
+                     (let [results
+                           (vswap! results
+                                   conj
+                                   {:arrive-ms (System/currentTimeMillis)
+                                    :msg msg})]
+                       (when (= (count results) (* 2 iterations))
+                         (.countDown latch)))))
         start-ms (System/currentTimeMillis)
         _ (doseq [i (range iterations)]
             (busy-wait interval-us)
-            (ws/send-msg ws-socket (pr-str [:cmd CLIENT-ID i
-                                            {:command/name :visit-page
-                                             :command/data {:page-view/url "www.example.com"}
-                                             :command/meta {:sent-ms (System/currentTimeMillis)}}])))
+            (ws/send-msg ws-socket
+                         (pr-str
+                          [:cmd CLIENT-ID i
+                           {:command/name :visit-page
+                            :command/data
+                            {:page-view/url "www.example.com"}
+                            :command/meta
+                            {:sent-ms (System/currentTimeMillis)}}])))
         _ (.await latch)
-        ops-per-second (int (/  (* iterations 1000)
-                                (- (System/currentTimeMillis) start-ms)))]
+        ops-per-second
+        (int (/  (* iterations 1000)
+                 (- (System/currentTimeMillis) start-ms)))]
 
     {:ops-per-second ops-per-second
      :results @results}))
+
 ```
 
 ![Latency percentile distribution for 320 ops/s.](figures/latency320.pdf){#fig:latency320}

@@ -379,22 +379,22 @@ thread.
 
 ## Query Service
 
+Queries enable access to database entries produced by aggregating events.
+
 The project emphasizes a single query endpoint. This may seem strange at first,
 but it has the benefit of keeping the query service simple.
 
-The query endpoint accepts queries in EDN format, as a Clojure map with the following fields:
+The query endpoint accepts queries in EDN format, as a Clojure map with the
+following fields:
 
-Field          Type              Description
------          ----              -----------
-Name           Clojure Keyword   The name of the query.
-Data           Clojure Map       The query parameters.
+Field Type            Description 
+----- ----            ----------- 
+Name  Clojure Keyword The name of the query. 
+Data  Clojure Map     The query parameters.
 
 An example query:
 
-```clojure
-{:query/name list-page-views
- :query/data {}}
-```
+```clojure {:query/name list-page-views :query/data {}} ```
 
 Queries consist of two stages. Validating the incoming query data, and then
 performing the query and returning the results. Both of these cases are covered

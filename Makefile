@@ -1,6 +1,8 @@
 all:
 			pandoc --template=template/nonumtemplate.tex \
              -V fontsize=12pt \
+             -H template/code-script-size.tex \
+             --highlight-style=tango \
              --toc \
              --number-sections \
              --filter pandoc-crossref \
