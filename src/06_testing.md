@@ -165,13 +165,13 @@ implementation which doesn't pause during garbage collection), and his excellent
 talk on "How NOT to measure latency" given at Strange Loop in 2015. [@51_gil_tene]
 
 We are primarily interested in the max throughput we can achieve while achieving
-sub 100ms latencies.
+sub 100ms latencies for the 99.9th percentile.
 
-The maximum stable throughput which we are able at sub 100ms latency is 320/ops,
+The maximum stable throughput with the above goal is 320/ops,
 and is shown in [@fig:latency320].
 
 Beyond this point we quickly approach latency values way above our target, see
-[@fig:latency320].
+[@fig:latency385].
 
 ![Latency percentile distribution for 320 ops/s.](figures/latency320.pdf){#fig:latency320}
 
