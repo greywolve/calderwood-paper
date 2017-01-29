@@ -4,6 +4,9 @@
 
 ## Adding a new command
 
+Adding a new command for a visiting a page was simply a case of extending three
+multi-methods.
+
 ```clojure
 (defmethod -coerce-command :visit-page [{:keys [command/data] :as command}]
   (if (and
@@ -27,6 +30,8 @@
 
 ## Adding a new query
 
+Adding a query is just as straight forward.
+
 ```clojure
 (defmethod -coerce-query :list-page-views [query]
   [:ok query])
@@ -48,9 +53,15 @@
 
 ### Login
 
+Testing logging in, see [@fig:test_login]
+
 ![Login test.](figures/test_login.pdf){#fig:test_login}
 
 ### Sending a command
+
+Sending a command using the console. Using a valid command is shown in
+[@fig:test_send_command], using an invalid command is shown in
+[@fig:test_send_command_failed].
 
 ![Send command.](figures/test_send_command.pdf){#fig:test_send_command}
 
@@ -58,11 +69,16 @@
 
 ### Performing a query
 
+Performing a query using the console. Performing a valid query is shown in
+[@fig:test_send_query], using an invalid command is shown in [@fig:test_send_query_failed].
+
 ![Send query.](figures/test_send_query.pdf){#fig:test_send_query}
 
 ![Send incorrect query.](figures/test_query_failed.pdf){#fig:test_send_query_failed}
 
 ## Performance Testing
+
+The code used for performance testing is shown below.
 
 ```clojure
 (def CLIENT-ID "12345")
@@ -116,6 +132,46 @@
      :results @results}))
 
 ```
+
+The strategy for the code above is as follows:
+
+-  Establish a Websocket connection using a server-side client Websocket
+   library.
+
+-  Initialize a CountDownLatch, which can be used as a barrier for completion.
+
+-  Register the *on-receieve* handler for that connection, and for each message
+   that arrives, add it to a Clojure *volatile!* which is essentially a faster
+   atom, with less guarantees. We don't need those guarantees though since there
+   is a single thread writing to it. Include the arrival time with each message.
+   When iterations * 2 messages have been received, issue a count down on the
+   latch. We need 2 * iterations here because each send message will have both
+   an acknowledgment response, and an update response.
+
+-  Send **iterations** *page-view* messages (10000 in this case) through the
+   Websocket connection, using a busy wait function to control throughput, since
+   *Thread/sleep* is not fine grained enough.
+
+- Await the CountDownLatch.
+
+- Operations per second are measured based on how long it takes to send all iterations.
+
+- The raw results, together with the operation per second are returned.
+
+The results can then be processed using the HDRHistogram tool, and a percentile
+distribution can be obtained. Inspiration for this method was taken from Gil
+Tene, of Azul systems (a company that makes it's own proprietary JVM
+implementation which doesn't pause during garbage collection), and his excellent
+talk on "How NOT to measure latency" given at Strange Loop in 2015. [@51_gil_tene]
+
+We are primarily interested in the max throughput we can achieve while achieving
+sub 100ms latencies.
+
+The maximum stable throughput which we are able at sub 100ms latency is 320/ops,
+and is shown in [@fig:latency320].
+
+Beyond this point we quickly approach latency values way above our target, see
+[@fig:latency320].
 
 ![Latency percentile distribution for 320 ops/s.](figures/latency320.pdf){#fig:latency320}
 
