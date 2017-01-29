@@ -350,11 +350,32 @@ steps:
 - If the transaction fails, wait 1 + a random number of milliseconds and retry
 - If the transaction fails, wait 2 + a random number of milliseconds and retry
 - If the transaction fails, wait 4 + a random number of milliseconds and retry
-- Repeat until the maximum back-of time of 60s.
+- Repeat until the maximum back-of time of 60s, and continue making requests at 60s.
 
 The random number of milliseconds is an integer between 0 and 1000.
 
 ## Update Handler
+
+Datomic provides it's peers with access to a transaction report queue, which
+provides live updates of any transactions currently happening on the system.
+
+Transactions are simple data structures, and thus they are trivial to parse and
+extract the transaction entity, which contains all the event data.
+
+In this project the *Update Handler* illustrates a real-time server to client
+broadcast. For each transaction received the event data is extracted, and
+broadcast to all connected clients.
+
+Different applications will have different strategies for updates. Sensitive
+events might be visible to only as select group of users, and thus it would be
+up to the developers to implement logic which checks the incoming event's data,
+and user identifier, and determine which other connected users to send events
+to.
+
+The *Update Handler* does it's push via the *Websocket Server*, which contains
+the an index of user identifier to Websocket connection. It thus must be
+co-located with the *Websocket Server*. It can however run in it's own dedicated
+thread.
 
 ## Query Service
 
