@@ -134,19 +134,51 @@ $for(header-includes)$
 $header-includes$
 $endfor$
 
-$if(title)$
-\title{$title$}
-$endif$
-$if(subtitle)$
-\subtitle{$subtitle$}
-$endif$
-\author{$for(author)$$author$$sep$ \and $endfor$}
-\date{$date$}
-
-
 \begin{document}
+\thispagestyle{empty}
+{\begin{center} \begin{Huge} 
+
 $if(title)$
-\clearpage\maketitle
+\vskip 2mm
+\nointerlineskip\hrule 
+\end{Huge}
+{\large {$title$} }
+\end{center}
+$endif$
+
+\vskip 5mm
+\begin{center}
+\includegraphics[scale = 0.35]{figures/uctlogo.png}
+\end{center}
+\vskip 5mm
+\begin{center}
+Presented by:\\
+\textbf{$for(author)$$author$$sep$ \and $endfor$}	\\
+Dept. of Electrical and Electronics Engineering\\
+University of Cape Town
+\end{center}
+
+\vskip 10mm
+\begin{center}
+Prepared for:\\
+\textbf{$if(supervisor)${$supervisor$}$endif$}\\ 
+Dept. of Electrical and Electronics Engineering\\University of Cape Town
+\end{center}
+
+\vskip 10mm
+\begin{center}
+Submitted to the Department of Electrical Engineering at the University of Cape Town in partial
+fulfillment of the academic requirements for a Bachelor of Science degree in Electrical and Computer Engineering.
+
+\end{center}
+
+\vskip 5mm
+\begin{center}\textbf{$if(date-due)${$date-due$}$endif$}
+\vskip 10mm
+{\bf Keywords:} $if(keywords)${$keywords$}$endif$
+\end{center}
+
+$if(title)$
 \thispagestyle{empty}
 \pagebreak
 \setcounter{page}{1}
@@ -156,6 +188,13 @@ $for(include-before)$
 $include-before$
 
 $endfor$
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+\end{abstract}
+$endif$
+
 $if(toc)$
 {
 \hypersetup{linkcolor=black}
@@ -164,11 +203,6 @@ $if(toc)$
 }
 $endif$
 
-$if(abstract)$
-\begin{abstract}
-$abstract$
-\end{abstract}
-$endif$
 
 $body$
 
