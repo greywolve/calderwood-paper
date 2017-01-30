@@ -140,7 +140,6 @@ $endfor$
 
 $if(title)$
 \vskip 2mm
-\nointerlineskip\hrule 
 \end{Huge}
 {\large {$title$} }
 \end{center}
@@ -178,6 +177,14 @@ fulfillment of the academic requirements for a Bachelor of Science degree in Ele
 {\bf Keywords:} $if(keywords)${$keywords$}$endif$
 \end{center}
 
+\pagebreak
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+\end{abstract}
+$endif$
+
 $if(title)$
 \thispagestyle{empty}
 \pagebreak
@@ -189,11 +196,6 @@ $include-before$
 
 $endfor$
 
-$if(abstract)$
-\begin{abstract}
-$abstract$
-\end{abstract}
-$endif$
 
 $if(toc)$
 {
