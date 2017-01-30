@@ -29,3 +29,5 @@ this will produce `report.pdf`
 - [Event-driven, the only way (it's gonna) fly! - Todd L. Montgomery](https://www.youtube.com/watch?v=qjjrBmXOKxo)
 
 - [The value of values - Rich Hickey](https://www.youtube.com/watch?v=-6BsiVyC1kM)
+
+- [How NOT to measure latency - Gil Tene](https://www.youtube.com/watch?v=lJ8ydIuPFeU)
